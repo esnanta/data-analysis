@@ -175,10 +175,10 @@ if selected == "Data Wrangling":
 
         st.markdown("""
         **Insight:**
-        - Data kontinu: temp, atemp, hum, windspeed
-        - Data diskret: instant, casual, registered, cnt
-        - Data ordinal: season, weathersit, weekday
-        - Data nominal: dteday, yr, mnth, hr, holiday, workingday
+            - Data kontinu: temp, atemp, hum, windspeed
+            - Data diskret: instant, casual, registered, cnt
+            - Data ordinal: season, weathersit, weekday
+            - Data nominal: dteday, yr, mnth, hr, holiday, workingday
         """)
 
     if wrangling_option == "Assessing Data":
@@ -260,6 +260,47 @@ if selected == "Data Wrangling":
                 st.dataframe(discrepancy)
             else:
                 st.success("No discrepancies: 'cnt' equals (casual + registered) for all rows.")
+
+            st.markdown("""
+            ### **Insight**
+            - ✅ **Tidak ada data yang bernilai null.**
+            - ⚠️ **Kesalahan tipe data:** Kolom `'dteday'` seharusnya memiliki tipe data `'date'`.
+            - ✅ **Data ordinal dan nominal sesuai ketentuan.**  
+            - ✅ **Tidak ada nilai negatif untuk kolom:** `casual`, `registered`, dan `cnt`.  
+            - ✅ **Nilai `cnt` sudah sesuai dengan penjumlahan:** `casual + registered`.  
+            """)
+
+            st.markdown("<hr>", unsafe_allow_html=True)
+            st.write("### Summary Statistics")
+            st.code("""
+                summary = df_hour_data.describe()
+                print(summary)
+            """, language="python")
+
+            # Get the summary statistics of the DataFrame
+            summary = df_hour_data.describe()
+
+            # Display the summary in Streamlit
+            # Use st.write() for general display or st.dataframe() for a more interactive table
+            st.dataframe(summary)
+
+            st.markdown("""
+            ### **Insight:**
+
+            - **Setiap kolom** memiliki data sebanyak **17,379** entri, yang artinya **tidak ada missing value**.
+            - **Season, yr, mnth, hr** terlihat konsisten berdasarkan jumlah data. Perlu dilakukan analisa distribusi dengan plot frekuensi jika ingin memahami lebih dalam.
+            - **Holiday** (biner [0,1]) dengan **mean** 0.02 menunjukkan jumlah data **hari libur** yang sedikit. Hari libur bernilai **1 (true)**.
+            - **Weekday** (Sunday-Saturday, 0-6) memiliki **mean** 3. Perlu dilakukan analisa distribusi dengan plot frekuensi jika ingin memahami lebih dalam.
+            - **Workingday** (biner [0,1]) dengan **mean** 0.6 yang berarti lebih banyak **hari kerja**. Nilai 1 (**true**) untuk hari kerja.
+            - **Weathersit** menjelaskan **kondisi cuaca** dengan rentang 1-4. Nilai **mean** 1.4 menunjukkan kondisi cuaca lebih banyak **cerah** atau **berawan**.
+            - **Temp** dan **atemp** memiliki **mean** 0.4 yang berarti kondisi cuaca berada di tengah-tengah batas minimal (0) dan maksimal (1).
+            - **Humidity** dengan **mean** 0.6 berarti kelembaban cenderung sedang. Nilai **Min**: 0 berarti kelembaban **kering**, dan nilai **1** berarti **saturasi penuh**.
+            - **Windspeed** dengan **Min** 0 dan **Max** 0.8 memiliki **mean** mendekati 0.2 yang berarti kondisi kecepatan angin **rendah**.
+            - **Pelanggan umum (casual)** cenderung memiliki distribusi **right skewed**, karena nilai **persentil Q1** adalah 4, jauh lebih kecil dari **Q3** yang 48. Nilai **Standar Deviasi (49)** yang lebih besar dari **mean (35)** menunjukkan data tersebar luas.
+            - **Pelanggan terdaftar (registered)** juga cenderung memiliki distribusi **right skewed**, karena nilai **persentil Q1** adalah 34, jauh lebih kecil dari **Q3** yang 220. Nilai **Standar Deviasi (151)** yang dekat dengan **mean (153)** menunjukkan variasi data mendekati **mean**.
+            - **Total sewa (cnt)** memiliki variasi sebaran data yang sedang karena **Standar Deviasi (181)** lebih kecil dan tidak terlalu jauh dari **mean (189)**. Nilai **Min 1** dan **Max 977** menunjukkan rentang yang jauh dan kemungkinan memiliki **outlier**. Nilai **persentil Q1** adalah 40, jauh lebih kecil dari **Q3** yang 281, sehingga data ada kemungkinan cenderung ke kanan (**right skewed**).
+            - **Perlu diingat** bahwa data **total sewa (cnt)** dipengaruhi oleh pelanggan **umum (casual)** dan **terdaftar (registered)**.
+            """)
 
     if wrangling_option == "Cleaning Data":
         st.subheader("Cleaning Data")
