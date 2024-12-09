@@ -231,12 +231,16 @@ print(summary)
 
 **Define**
 
-1. Kolom 'dteday' bertipe object, sehingga perlu diubah menjadi 'datetime'.
+Kolom 'dteday' bertipe object, sehingga perlu diubah menjadi 'datetime'.
+
+**Code**
 """
 
 # Cleaning Data
-# 1. Convert 'dteday' to datetime
+# Convert 'dteday' to datetime
 df_hour_data['dteday'] = pd.to_datetime(df_hour_data['dteday'])
+
+"""**Test**"""
 
 # Verify the change
 df_hour_data.info()

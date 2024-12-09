@@ -332,25 +332,51 @@ if selected == "Data Wrangling":
 
     if wrangling_option == "Cleaning Data":
         # Step 1: Display Cleaning Task
-        st.markdown("""
-        ### Cleaning Data
+        df_hour_data, load_error = load_data(HOUR_CSV_PATH)
+        if load_error:
+            st.error(load_error)
+        else:
+            # Display an introductory message
+            st.markdown("### Step 1: Define")
+            st.markdown("""
+            The goal of this step is to prepare the dataset for further analysis by addressing data type issues.
 
-        **Define**
+            #### Task:
+            - The column **'dteday'** is currently of type `object`. 
+            - It needs to be converted to `datetime` to allow proper handling and analysis of date-related information.
 
-        1. The column 'dteday' is of type object and needs to be converted to 'datetime'.
-        """)
+            This conversion will ensure that the dates are correctly interpreted, enabling time-based operations and visualizations.
 
-        # Step 2: Perform the Cleaning Task
-        df_hour_data['dteday'] = pd.to_datetime(df_hour_data['dteday'])
+            """)
+            # Capture and display the updated DataFrame information
+            buffer = io.StringIO()  # Capture df.info() output
+            df_hour_data.info(buf=buffer)
+            info_output = buffer.getvalue()
+            st.text(info_output)
+            # Step 2: Perform the Cleaning Task
+            st.markdown("### Step 2: Code")
+            st.write("Converting the 'dteday' column from `object` to `datetime`")
 
-        # Step 3: Verify the Change
-        st.markdown("#### Updated Data Information")
-        buffer = io.StringIO()  # Capture df.info() output
-        df_hour_data.info(buf=buffer)
-        info_output = buffer.getvalue()
-        st.text(info_output)
+            # Clean the data by converting 'dteday' column
+            df_hour_data['dteday'] = pd.to_datetime(df_hour_data['dteday'])
 
-        st.success("Data cleaning completed. 'dteday' has been successfully converted to datetime.")
+            # Display the code for transparency
+            st.code("df_hour_data['dteday'] = pd.to_datetime(df_hour_data['dteday'])", language="python")
+
+            # Step 3: Verify the Change
+            st.markdown("### Step 3: Verify")
+            st.write("Now, let's verify that the change has been successfully applied.")
+            st.code("df_hour_data.info()", language="python")
+
+            # Capture and display the updated DataFrame information
+            buffer = io.StringIO()  # Capture df.info() output
+            df_hour_data.info(buf=buffer)
+            info_output = buffer.getvalue()
+            st.text(info_output)
+
+            # Success message
+            st.success(
+                "Data cleaning completed successfully. The 'dteday' column has been successfully converted to `datetime`.")
 
 # Exploratory Data Analysis Section
 if selected == "Exploratory Data Analysis":
