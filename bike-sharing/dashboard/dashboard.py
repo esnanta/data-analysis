@@ -1,6 +1,7 @@
 # layout credit to :
 # https://github.com/64SquaresApexLLP/Snowflake_health/tree/Devesh
 
+import io
 import os
 import streamlit as st
 import requests
@@ -9,7 +10,7 @@ import pandas as pd
 import numpy as np
 from streamlit_option_menu import option_menu
 
-github_url = 'https://github.com/esnanta/data-analysis/raw/main/Dataset/Bike-sharing-dataset.zip'
+global df_hour_data
 
 # Configuration
 GITHUB_URL = 'https://github.com/esnanta/data-analysis/raw/main/Dataset/Bike-sharing-dataset.zip'
@@ -161,6 +162,11 @@ if selected == "Data Wrangling":
 
     if wrangling_option == "Gathering Data":
         st.subheader("Gathering Data")
+        # Reset Cache button
+        if st.button("Reset Cache"):
+            st.cache_data.clear()
+            st.success("Cache has been reset!")
+
         success, message = download_and_extract_data(GITHUB_URL, ZIP_PATH, DATA_FOLDER)
         if success:
             st.success(message)
@@ -174,11 +180,12 @@ if selected == "Data Wrangling":
             st.error(message)
 
         st.markdown("""
-        **Insight:**
-            - Data kontinu: temp, atemp, hum, windspeed
-            - Data diskret: instant, casual, registered, cnt
-            - Data ordinal: season, weathersit, weekday
-            - Data nominal: dteday, yr, mnth, hr, holiday, workingday
+        ### **Insight:**
+
+        - **Continuous Data**: `temp`, `atemp`, `hum`, `windspeed`
+        - **Discrete Data**: `instant`, `casual`, `registered`, `cnt`
+        - **Ordinal Data**: `season`, `weathersit`, `weekday`
+        - **Nominal Data**: `dteday`, `yr`, `mnth`, `hr`, `holiday`, `workingday`
         """)
 
     if wrangling_option == "Assessing Data":
@@ -287,24 +294,63 @@ if selected == "Data Wrangling":
             st.markdown("""
             ### **Insight:**
 
-            - **Setiap kolom** memiliki data sebanyak **17,379** entri, yang artinya **tidak ada missing value**.
-            - **Season, yr, mnth, hr** terlihat konsisten berdasarkan jumlah data. Perlu dilakukan analisa distribusi dengan plot frekuensi jika ingin memahami lebih dalam.
-            - **Holiday** (biner [0,1]) dengan **mean** 0.02 menunjukkan jumlah data **hari libur** yang sedikit. Hari libur bernilai **1 (true)**.
-            - **Weekday** (Sunday-Saturday, 0-6) memiliki **mean** 3. Perlu dilakukan analisa distribusi dengan plot frekuensi jika ingin memahami lebih dalam.
-            - **Workingday** (biner [0,1]) dengan **mean** 0.6 yang berarti lebih banyak **hari kerja**. Nilai 1 (**true**) untuk hari kerja.
-            - **Weathersit** menjelaskan **kondisi cuaca** dengan rentang 1-4. Nilai **mean** 1.4 menunjukkan kondisi cuaca lebih banyak **cerah** atau **berawan**.
-            - **Temp** dan **atemp** memiliki **mean** 0.4 yang berarti kondisi cuaca berada di tengah-tengah batas minimal (0) dan maksimal (1).
-            - **Humidity** dengan **mean** 0.6 berarti kelembaban cenderung sedang. Nilai **Min**: 0 berarti kelembaban **kering**, dan nilai **1** berarti **saturasi penuh**.
-            - **Windspeed** dengan **Min** 0 dan **Max** 0.8 memiliki **mean** mendekati 0.2 yang berarti kondisi kecepatan angin **rendah**.
-            - **Pelanggan umum (casual)** cenderung memiliki distribusi **right skewed**, karena nilai **persentil Q1** adalah 4, jauh lebih kecil dari **Q3** yang 48. Nilai **Standar Deviasi (49)** yang lebih besar dari **mean (35)** menunjukkan data tersebar luas.
-            - **Pelanggan terdaftar (registered)** juga cenderung memiliki distribusi **right skewed**, karena nilai **persentil Q1** adalah 34, jauh lebih kecil dari **Q3** yang 220. Nilai **Standar Deviasi (151)** yang dekat dengan **mean (153)** menunjukkan variasi data mendekati **mean**.
-            - **Total sewa (cnt)** memiliki variasi sebaran data yang sedang karena **Standar Deviasi (181)** lebih kecil dan tidak terlalu jauh dari **mean (189)**. Nilai **Min 1** dan **Max 977** menunjukkan rentang yang jauh dan kemungkinan memiliki **outlier**. Nilai **persentil Q1** adalah 40, jauh lebih kecil dari **Q3** yang 281, sehingga data ada kemungkinan cenderung ke kanan (**right skewed**).
-            - **Perlu diingat** bahwa data **total sewa (cnt)** dipengaruhi oleh pelanggan **umum (casual)** dan **terdaftar (registered)**.
+            - **Setiap kolom** memiliki data sebanyak `17,379` entri, yang artinya **tidak ada missing value**.
+            - **Season**, `yr`, `mnth`, `hr` terlihat konsisten berdasarkan jumlah data. Perlu analisis distribusi dengan plot frekuensi untuk pemahaman lebih mendalam.
+            - **Holiday** (biner `[0, 1]`):
+              - **Mean**: `0.02`, menunjukkan jumlah data **hari libur** yang sedikit.
+              - Hari libur bernilai `1` (**true**).
+            - **Weekday** (Sunday-Saturday, `0-6`):
+              - **Mean**: `3`.
+              - Perlu analisis distribusi dengan plot frekuensi untuk pemahaman lebih mendalam.
+            - **Workingday** (biner `[0, 1]`):
+              - **Mean**: `0.6`, menunjukkan lebih banyak **hari kerja**.
+              - Nilai `1` (**true**) untuk hari kerja.
+            - **Weathersit**:
+              - Menjelaskan **kondisi cuaca** dengan rentang `1-4`.
+              - **Mean**: `1.4`, menunjukkan kondisi cuaca lebih banyak **cerah** atau **berawan**.
+            - **Temp** dan **atemp**:
+              - **Mean**: `0.4`, menunjukkan kondisi cuaca di tengah-tengah antara batas minimal (`0`) dan maksimal (`1`).
+            - **Humidity**:
+              - **Mean**: `0.6`, menunjukkan kelembaban cenderung sedang.
+              - **Min**: `0`, berarti kelembaban **kering**; **Max**: `1`, berarti **saturasi penuh**.
+            - **Windspeed**:
+              - **Min**: `0`, **Max**: `0.8`, dan **Mean**: `0.2`, menunjukkan kondisi kecepatan angin **rendah**.
+            - **Pelanggan umum (casual)**:
+              - Distribusi **right skewed** (skewed ke kanan):
+                - **Persentil Q1**: `4`, jauh lebih kecil dari **Q3**: `48`.
+                - **Standar Deviasi**: `49`, lebih besar dari **Mean**: `35`, menunjukkan data tersebar luas.
+            - **Pelanggan terdaftar (registered)**:
+              - Distribusi **right skewed**:
+                - **Persentil Q1**: `34`, jauh lebih kecil dari **Q3**: `220`.
+                - **Standar Deviasi**: `151`, mendekati **Mean**: `153`, menunjukkan variasi data dekat dengan **mean**.
+            - **Total sewa (cnt)**:
+              - **Standar Deviasi**: `181`, lebih kecil dan tidak terlalu jauh dari **Mean**: `189`.
+              - **Min**: `1` dan **Max**: `977`, menunjukkan rentang yang jauh, kemungkinan terdapat **outlier**.
+              - **Persentil Q1**: `40`, jauh lebih kecil dari **Q3**: `281`, menunjukkan data cenderung **right skewed**.
+              - Data **total sewa (cnt)** dipengaruhi oleh pelanggan **umum (casual)** dan **terdaftar (registered)**.
             """)
 
     if wrangling_option == "Cleaning Data":
-        st.subheader("Cleaning Data")
-        st.write("This section will include data cleaning steps.")
+        # Step 1: Display Cleaning Task
+        st.markdown("""
+        ### Cleaning Data
+
+        **Define**
+
+        1. The column 'dteday' is of type object and needs to be converted to 'datetime'.
+        """)
+
+        # Step 2: Perform the Cleaning Task
+        df_hour_data['dteday'] = pd.to_datetime(df_hour_data['dteday'])
+
+        # Step 3: Verify the Change
+        st.markdown("#### Updated Data Information")
+        buffer = io.StringIO()  # Capture df.info() output
+        df_hour_data.info(buf=buffer)
+        info_output = buffer.getvalue()
+        st.text(info_output)
+
+        st.success("Data cleaning completed. 'dteday' has been successfully converted to datetime.")
 
 # Exploratory Data Analysis Section
 if selected == "Exploratory Data Analysis":
