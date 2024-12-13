@@ -19,7 +19,7 @@ The dataset contains variables related to environmental factors, seasonal trends
 
 - `casual`: Count of casual users.
 - `registered`: Count of registered users.
-- `cnt`: Total bike rentals.
+- `cnt`: Total bike rentals (casual+registered).
 - `weathersit`: Weather situation.
 - `temp`: Normalized temperature.
 - `holiday`: Indicator for national holidays.
@@ -43,7 +43,7 @@ The dataset contains variables related to environmental factors, seasonal trends
 ## How to Run the Analysis
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/bike-sharing-analysis.git
+   git clone https://github.com/esnanta/data-analysis.git
    ```
 2. Extract the `Bike-sharing-dataset.zip` file into the project directory.
 3. Open the `bike_sharing_analysis.ipynb` file in Google Colab or Jupyter Notebook.
