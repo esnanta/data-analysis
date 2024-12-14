@@ -30,6 +30,10 @@ The dataset contains variables related to environmental factors, seasonal trends
 - **Pandas**: For data manipulation.
 - **Matplotlib** and **Seaborn**: For data visualization.
 
+## Streamlit Dashboard
+You can explore the interactive dashboard for bike-sharing data analysis at the following link:  
+[Bike Sharing Data Analysis Dashboard](https://esnanta-bikesharing-analysis.streamlit.app/)
+
 ## Analysis Highlights
 - **User Patterns**: Examined the differences in rental behaviors between casual and registered users.
 - **Peak Hours**: Identified peak rental hours for both user types using hourly data.
@@ -41,24 +45,6 @@ The dataset contains variables related to environmental factors, seasonal trends
 3. Sudden spikes or drops in rental counts were often associated with extreme weather conditions or holidays.
 
 ## How to Run the Analysis
-1. Clone the repository:
+Clone the repository:
    ```bash
    git clone https://github.com/esnanta/data-analysis.git
-   ```
-2. Extract the `Bike-sharing-dataset.zip` file into the project directory.
-3. Open the `bike_sharing_analysis.ipynb` file in Google Colab or Jupyter Notebook.
-4. Run all cells to reproduce the analysis and visualizations.
-
-## Future Improvements
-- Incorporate machine learning models to predict bike rental demands.
-- Expand analysis to include data from more recent years.
-- Integrate additional external datasets, such as traffic or public events, to improve anomaly detection.
-
-## License
-This project is licensed under the MIT License. See the `LICENSE` file for details.
-
-## Acknowledgments
-- Dicoding Platform for providing guidance and resources.
-- UCI Machine Learning Repository for the dataset.
-
-Feel free to contribute or reach out with feedback or questions!
