@@ -198,7 +198,6 @@ elif selected == "Analysis":
 
                 st.markdown("""
                         **Insight:**
-                        - Data pelanggan umum (casual) lebih terkonsentrasi pada hari weekend (Sabtu, Minggu), sedangkan pelanggan (terdaftar) lebih pada hari-hari kerja.
                         - Aktivitas penyewaan pelanggan terdaftar (registered) menunjukkan dua puncak utama:
                             * Pagi (sekitar pukul 8) dan
                             * Sore (sekitar pukul 17-18).
@@ -325,19 +324,6 @@ elif selected == "Analysis":
                     ---
                     """)
 
-                    st.markdown("""
-                    2. **Analisis Faktor Eksternal** untuk mengidentifikasi apakah anomali penyewaan berkaitan dengan kondisi cuaca tertentu.
-
-                        * Gabungkan data anomali dengan data cuaca dan kecepatan angin.
-                            - Kelompokkan data jam ke data harian untuk menghitung statistik rata-rata kecepatan angin (windspeed) dan kondisi cuaca (weathersit) harian.
-                            - Gunakan merge untuk menggabungkan data anomali dengan data cuaca dan kecepatan angin berdasarkan kolom tanggal (dteday).
-                        * Visualisasi Hubungan antara Perubahan Penyewaan, Kecepatan Angin, dan Situasi Cuaca.
-                            - Gunakan scatter plot untuk memvisualisasikan perubahan harian (change) pada penyewaan terhadap kecepatan angin, dengan warna mewakili kondisi cuaca (weathersit).
-                            - Tambahkan garis horizontal untuk menyoroti rata-rata kecepatan angin sebagai referensi.
-                        * Rangkum Dengan Statistik Deskriptif.
-                            - Hitung rata-rata dan standar deviasi untuk perubahan penyewaan (change) dan kecepatan angin (windspeed) berdasarkan situasi cuaca (weathersit).
-                            - Tampilkan jumlah hari anomali untuk setiap kondisi cuaca.
-                    """)
 
                     # === Bagian 2: Analisis Hubungan dengan Kondisi Cuaca ===
                     # 1. Aggregate hourly data for weather and windspeed
