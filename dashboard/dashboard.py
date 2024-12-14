@@ -61,6 +61,66 @@ def reset_cache():
     st.cache_data.clear()
     st.success("Cache has been cleared!")
 
+# Analysis based on selected option
+df, error = load_data(HOUR_CSV_PATH)
+
+
+def apply_filters(data_frame, date_column='dteday', user_type_column='usertype', hour_column='hr',
+                  working_day_column='workingday'):
+    """
+    Apply user-driven filters to a data_frame.
+
+    Parameters:
+    - df (pd.data_frame): The data to be filtered.
+    - date_column (str): The name of the date column in the data_frame.
+    - user_type_column (str): The name of the user type column in the data_frame.
+    - hour_column (str): The name of the hour column in the data_frame.
+    - working_day_column (str): The name of the working day column in the data_frame.
+
+    Returns:
+    - pd.data_frame: Filtered data_frame.
+    """
+    # Ensure the date column is in datetime format
+    data_frame[date_column] = pd.to_datetime(data_frame[date_column])
+    data_frame['date_only'] = data_frame[date_column].dt.date  # Extract date only for comparison
+
+    # Date range filter
+    min_date = data_frame['date_only'].min()
+    max_date = data_frame['date_only'].max()
+    selected_dates = st.sidebar.date_input(
+        "Select Date Range", [min_date, max_date], min_value=min_date, max_value=max_date
+    )
+    if len(selected_dates) == 2:
+        data_frame = data_frame[(data_frame['date_only'] >= selected_dates[0]) & (data_frame['date_only'] <= selected_dates[1])]
+
+    # User type filter
+    if user_type_column in data_frame.columns:
+        unique_user_types = data_frame[user_type_column].dropna().unique()
+        user_type = st.sidebar.multiselect(
+            "Select User Type", unique_user_types, default=list(unique_user_types)
+        )
+        data_frame = data_frame[data_frame[user_type_column].isin(user_type)]
+
+    # Hour filter
+    if hour_column in data_frame.columns:
+        hour_range = st.sidebar.slider("Select Hour Range", 0, 23, (0, 23))
+        data_frame = data_frame[(data_frame[hour_column] >= hour_range[0]) & (data_frame[hour_column] <= hour_range[1])]
+
+    # Working day filter
+    if working_day_column in data_frame.columns:
+        working_day_filter = st.sidebar.radio(
+            "Working Day or Weekend?", ["All", "Working Day", "Weekend"], index=0
+        )
+        if working_day_filter == "Working Day":
+            data_frame = data_frame[data_frame[working_day_column] == 1]
+        elif working_day_filter == "Weekend":
+            data_frame = data_frame[data_frame[working_day_column] == 0]
+
+    # Show filtered row count
+    st.sidebar.markdown(f"### {len(df)} rows of data after filtering")
+
+    return data_frame
+
 # Sidebar Menu
 with st.sidebar:
     selected = option_menu(
@@ -123,12 +183,20 @@ elif selected == "Analysis":
         orientation="horizontal"
     )
 
-    # Analysis based on selected option
-    df, error = load_data(HOUR_CSV_PATH)
     if error:
         st.error(error)
     elif df is not None:
         if df is not None:
+
+            # Apply filters using the reusable function
+            df = apply_filters(
+                df,
+                date_column='dteday',  # Column containing the date
+                user_type_column='usertype',  # Column containing user types
+                hour_column='hr',  # Column for hours
+                working_day_column='workingday'  # Column for working day info
+            )
+
             # Question 1: Analysis
             if analysis_option == "Q1":
                 st.subheader("1️⃣ Perbedaan Pola Peminjaman Sepeda")
@@ -381,13 +449,10 @@ elif selected == "Analysis":
 
 # Clustering Section
 elif selected == "Clustering":
-    df, error = load_data(HOUR_CSV_PATH)
     if error:
         st.error(error)
     elif df is not None:
         st.subheader("Clustering Based On Time Period")
-
-
         # Kategori waktu berdasarkan jam
         def categorize_time(hour):
             if 5 <= hour <= 11:
