@@ -7,8 +7,8 @@ The primary objective of this project is to explore and analyze bike-sharing dat
 
 1. **How do bike rental patterns differ between casual and registered users?**
 2. **What times of the day experience the highest bike rental volumes for casual and registered users?**
-3. **How do rental behaviors vary across different time periods (morning, afternoon, evening, and night)?**
-4. **Can anomalies or significant events (e.g., extreme weather or national holidays) be identified based on sudden spikes or drops in bike rentals (`cnt`)?**
+3. **Can anomalies or significant events (e.g., extreme weather or national holidays) be identified based on sudden spikes or drops in bike rentals (`cnt`)?**
+4. **How do rental behaviors vary across different time periods (morning, afternoon, evening, and night)?**
 
 ## Dataset
 The dataset, `Bike-sharing-dataset.zip`, includes the following files:
