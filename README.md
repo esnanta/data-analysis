@@ -2,6 +2,9 @@
 
 This project provides a comprehensive analysis of bike-sharing systems, specifically focusing on the Capital Bikeshare system in Washington D.C. It was completed as part of my study on the Dicoding platform. The dataset includes data from 2011 and 2012, covering both hourly and daily usage.
 
+Explore the interactive dashboard to dive deeper into the analysis:  
+[Bike Sharing Data Analysis Dashboard](https://esnanta-bikesharing-analysis.streamlit.app/)
+
 ## Objective
 The primary objective of this project is to explore and analyze bike-sharing data to answer the following questions:
 
@@ -33,10 +36,6 @@ The dataset contains various variables that enable a detailed analysis of bike-s
 - **Pandas**: For efficient data processing.
 - **Matplotlib** and **Seaborn**: For creating insightful visualizations.
 - **Streamlit**: To build and deploy the interactive data analysis dashboard.
-
-## Streamlit Dashboard
-Explore the interactive dashboard to dive deeper into the analysis:  
-[Bike Sharing Data Analysis Dashboard](https://esnanta-bikesharing-analysis.streamlit.app/)
 
 ## Analysis Highlights
 1. **User Patterns**: Analyzed the rental behaviors of casual and registered users to identify trends.
