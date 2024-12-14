@@ -385,63 +385,71 @@ elif selected == "Clustering":
     if error:
         st.error(error)
     elif df is not None:
-        st.subheader("Clustering Based On Weathersit & Holiday")
+        st.subheader("Clustering Based On Time Period")
 
-        # Analisis Lanjutan : Clustering Berdasarkan Cuaca
-        # Group data by weathersit and calculate mean rentals
-        # Group data by weathersit and holiday, and calculate mean rentals
-        weather_holiday_clusters = df.groupby(['weathersit', 'holiday']).agg({
+
+        # Kategori waktu berdasarkan jam
+        def categorize_time(hour):
+            if 5 <= hour <= 11:
+                return 'Pagi'
+            elif 12 <= hour <= 16:
+                return 'Siang'
+            elif 17 <= hour <= 20:
+                return 'Sore'
+            else:
+                return 'Malam'
+
+
+        # Tambahkan kolom baru
+        df['TimePeriod'] = df['hr'].apply(categorize_time)
+
+        # Group data berdasarkan TimePeriod dan holiday
+        time_period_clusters = df.groupby(['TimePeriod', 'holiday']).agg({
             'casual': 'mean',
             'registered': 'mean'
         }).reset_index()
 
-        # Rename columns for better readability
-        weather_holiday_clusters.columns = ['Weathersit', 'Holiday', 'Casual Rentals', 'Registered Rentals']
-
-        # Define the full range of weathersit categories (modify based on your dataset if needed)
-        weathersit_categories = [1, 2, 3, 4]  # 1: Clear, 2: Mist, 3: Light Snow/Rain, 4: Heavy Rain/Snow
-
-        # Split data into holiday and non-holiday
-        holiday_data = weather_holiday_clusters[weather_holiday_clusters['Holiday'] == 1].set_index('Weathersit')
-        non_holiday_data = weather_holiday_clusters[weather_holiday_clusters['Holiday'] == 0].set_index('Weathersit')
-
-        # Reindex to include all weathersit categories and fill missing values with 0
-        holiday_data = holiday_data.reindex(weathersit_categories, fill_value=0).reset_index()
-        non_holiday_data = non_holiday_data.reindex(weathersit_categories, fill_value=0).reset_index()
-
-        # Display clustered data
-        st.dataframe(weather_holiday_clusters)
-
-        # Visualization: Compare rentals across weather conditions for holidays and non-holidays
+        # Visualisasi
         fig, ax = plt.subplots(figsize=(12, 7))
 
-        bar_width = 0.35
-        index = np.arange(len(weathersit_categories))  # Create a consistent index for all weathersit categories
+        bar_width = 0.35  # Lebar bar
+        index = np.arange(len(time_period_clusters['TimePeriod'].unique()))
 
-        # Improved color scheme for better visual distinction
-        holiday_casual_color = '#1f77b4'  # Dark Blue
-        non_holiday_casual_color = '#aec7e8'  # Light Blue
-        holiday_registered_color = '#ff7f0e'  # Orange
-        non_holiday_registered_color = '#ffbb78'  # Light Orange
+        # Warna untuk holiday dan non-holiday
+        holiday_casual_color = '#004c6d'
+        non_holiday_casual_color = '#5886a5'
+        holiday_registered_color = '#488f31'
+        non_holiday_registered_color = '#80ad6d'
 
-        # Plot casual rentals data
-        ax.bar(index - bar_width / 2, holiday_data['Casual Rentals'], bar_width, label='Casual Rentals (Holiday)',
-               color=holiday_casual_color)
-        ax.bar(index - bar_width / 2, non_holiday_data['Casual Rentals'], bar_width,
-               label='Casual Rentals (Non-Holiday)', color=non_holiday_casual_color, alpha=0.8)
+        # Filter data untuk tiap kategori
+        holiday_data = time_period_clusters[time_period_clusters['holiday'] == 1]
+        non_holiday_data = time_period_clusters[time_period_clusters['holiday'] == 0]
 
-        # Plot registered rentals data
-        ax.bar(index + bar_width / 2, holiday_data['Registered Rentals'], bar_width,
-               label='Registered Rentals (Holiday)', color=holiday_registered_color)
-        ax.bar(index + bar_width / 2, non_holiday_data['Registered Rentals'], bar_width,
-               label='Registered Rentals (Non-Holiday)', color=non_holiday_registered_color, alpha=0.8)
+        # Plot stacked bar untuk casual
+        ax.bar(index,
+               holiday_data['casual'],
+               bar_width, label='Casual (Holiday)', color=holiday_casual_color)
 
-        # Add labels, title, and legend
-        ax.set_xlabel('Weathersit')
-        ax.set_ylabel('Average Rentals (Casual vs Registered)')
-        ax.set_title('Casual vs Registered Rentals by Weathersit and Holiday')
-        ax.set_xticks(index)
-        ax.set_xticklabels(['Clear', 'Mist', 'Light Snow/Rain', 'Heavy Rain/Snow'])
+        ax.bar(index,
+               non_holiday_data['casual'],
+               bar_width, bottom=holiday_data['casual'], label='Casual (Non-Holiday)', color=non_holiday_casual_color)
+
+        # Plot stacked bar untuk registered
+        ax.bar(index + bar_width,
+               holiday_data['registered'],
+               bar_width, label='Registered (Holiday)', color=holiday_registered_color)
+
+        ax.bar(index + bar_width,
+               non_holiday_data['registered'],
+               bar_width, bottom=holiday_data['registered'], label='Registered (Non-Holiday)',
+               color=non_holiday_registered_color)
+
+        # Label dan keterangan
+        ax.set_xlabel('Time Period')
+        ax.set_ylabel('Average Rentals')
+        ax.set_title('Average Rentals by Time Period (Casual vs Registered)')
+        ax.set_xticks(index + bar_width / 2)  # Pusatkan label di antara dua bar
+        ax.set_xticklabels(['Pagi', 'Siang', 'Sore', 'Malam'])
         ax.legend()
 
         # Show plot in Streamlit
@@ -449,11 +457,11 @@ elif selected == "Clustering":
 
         st.markdown("""
             **Insight:**
-            * Dalam keadaan cuaca apapun, pelanggan terdaftar memiliki jumlah penyewaan terbanyak baik untuk hari libur ataupun kerja.
-            * Pelanggan umum lebih banyak menyewa sepeda saat hari libur, sedangkan pelanggan terdaftar lebih banyak saat hari kerja.
-            * Cuaca cerah (clear) cenderung memiliki rata-rata penyewaan tertinggi, baik untuk pelanggan umum (casual) maupun pelanggan terdaftar (registered).
-            * Kondisi cuaca buruk (heavy rain/snow) memiliki rata-rata penyewaan terendah, menunjukkan pengaruh negatif dari cuaca buruk.
-            * Saat cuaca buruk, penyewaan pelanggan umum maupun terdaftar jumlahnya minimal, terlepas apakah hari kerja ataupun libur.
+            - Pada semua kategori, kontribusi pengguna terdaftar (registered) lebih signifikan dibanding umum (casual), baik hari libur ataupun kerja.
+            - Pada kategori "Malam", jumlah penyewaan sepeda (pelanggan umum maupun terdaftar) paling tinggi dibandingkan periode lainnya.
+            - Penyewaan sepeda pada kategori "Pagi" menunjukkan aktivitas yang lebih rendah dibandingkan kategori waktu lainnya.
+            - Untuk pelanggan umum (casual), penyewaan cenderung lebih tinggi selama hari libur (holiday) di semua periode waktu.
+            - Untuk pelanggan terdaftar (registered), penyewaan lebih dominan pada hari kerja (non-holiday), terutama pada kategori waktu "Siang" dan "Malam".
         """)
 
 # Conclusion Section
@@ -496,21 +504,20 @@ elif selected == "Conclusion":
         """
     )
     st.markdown("""
-    - **Cuaca cerah** cenderung meningkatkan penyewaan meskipun ada anomali, sementara **cuaca buruk** menurunkan penyewaan.
-    - **Kecepatan angin** berpengaruh, tetapi efeknya lebih signifikan ketika dikombinasikan dengan kondisi cuaca tertentu.
+    - Cuaca cerah cenderung meningkatkan penyewaan meskipun ada anomali, sementara cuaca buruk menurunkan penyewaan.
+    - Kecepatan angin berpengaruh sedikit, hanya ketika dikombinasikan dengan kondisi cuaca tertentu.
     """)
 
     # Conclusion for Advanced Analysis: Clustering Based on Weather
     st.subheader("🎯 Kesimpulan Analisis Lanjutan")
-    st.markdown("""***Clustering Berdasarkan Cuaca & Libur***""")
+    st.markdown(""" ***Clustering Berdasarkan Periode Waktu (Pagi, Siang, Sore, dan Malam)*** """)
     st.markdown("""
-    - Liburan berpengaruh lebih banyak pada pelanggan umum, terutama dalam kondisi cuaca yang lebih baik (cerah atau berkabut). Hal ini terjadi karena kegiatan rekreasi lebih sering dilakukan pada hari libur dengan cuaca yang mendukung.
-    - Pelanggan terdaftar memiliki jumlah penggunaan yang tinggi selama hari kerja. Hal ini dipengaruhi oleh kebutuhan perjalanan rutin.
-    - Cuaca cerah menunjukkan angka penyewaan tertinggi di semua kategori. Artinya, cuaca berdampak baik dan signifikan terhadap penggunaan sepeda.
-    - Cuaca buruk (salju/hujan ringan atau lebat) menyebabkan penurunan drastis penggunaan sepeda, terlepas apakah itu hari libur atau tidak.
-    - Promosi atau diskon bisa dibuat untuk pengguna umum (casual) pada hari libur, terutama saat cuaca cerah, agar dapat lebih meningkatkan penggunaan/penyewaan sepeda.
-    - Perlu penyediaan perlengkapan atau fasilitas tahan cuaca untuk membantu menjaga jumlah pelanggan saat cuaca berkabut atau sedikit hujan.
-    
+    - Waktu Sore dan Malam adalah periode yang paling banyak digunakan terutama oleh pengguna terdaftar. Oleh karena itu, promosi yang menargetkan kelompok ini sebaiknya dilakukan pada periode tersebut.
+    - Untuk meningkatkan penggunaan pada waktu Pagi, promosi khusus seperti diskon pagi hari dapat diterapkan.
+    - Selama hari libur (holiday), pengguna kasual mendominasi. Ini menunjukkan bahwa promosi yang diarahkan pada wisatawan atau aktivitas rekreasi dapat efektif pada periode ini.
+    _ Penambahan atau penyebaran sepeda yang lebih banyak pada waktu Sore dan Malam dapat membantu mengatasi lonjakan permintaan pada periode tersebut.
+    - Untuk hari kerja (non-holiday), fokus pada pengguna terdaftar dapat mencakup program loyalitas atau fasilitas tambahan untuk meningkatkan pengalaman pelanggan.
+    - Pengguna terdaftar lebih dominan pada hari kerja, yang mengindikasikan bahwa layanan ini digunakan sebagai bagian dari rutinitas. Memperkenalkan layanan tambahan seperti rute premium atau paket langganan bulanan dapat meningkatkan rasa puas penggunaan layanan.
     """)
 
 else:
