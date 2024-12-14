@@ -1,6 +1,6 @@
 # Bike Sharing Data Analysis
 
-This project is a data analysis of bike-sharing systems, specifically focusing on the Capital Bikeshare system in Washington D.C. It was completed as part of my study on the Dicoding platform. The dataset used contains information from 2011 and 2012, covering both hourly and daily data.
+This project is a data analysis of bike-sharing systems, specifically focusing on the Capital Bikeshare system in Washington D.C. It was completed as part of my study on the Dicoding. The dataset used contains information from 2011 and 2012, covering both hourly and daily data.
 
 ## Objective
 The primary objective of this project is to explore and analyze the bike-sharing data to answer the following questions:
