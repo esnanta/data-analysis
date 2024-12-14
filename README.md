@@ -1,6 +1,6 @@
 # Bike Sharing Data Analysis
 
-This project provides a comprehensive analysis of bike-sharing systems, specifically focusing on the Capital Bikeshare system in Washington D.C. It was completed as part of my study on the Dicoding platform. The dataset includes data from 2011 and 2012, covering both hourly and daily usage.
+This project provides an analysis of bike-sharing systems, specifically focusing on the Capital Bikeshare system in Washington D.C. It was completed as part of my study on the Dicoding platform. The dataset includes data from 2011 and 2012, covering both hourly and daily usage.
 
 Explore the interactive dashboard to dive deeper into the analysis:  
 [Bike Sharing Data Analysis Dashboard](https://esnanta-bikesharing-analysis.streamlit.app/)
