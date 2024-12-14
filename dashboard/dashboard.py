@@ -32,7 +32,8 @@ def download_and_extract_data(url, zip_path, extract_to):
                 file.write(response.content)
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                 zip_ref.extractall(extract_to)
-            return True, "Dataset downloaded and extracted successfully!"
+            st.toast("Dataset downloaded and extracted successfully!")
+            return True, None
         else:
             return False, "Failed to download the dataset. Check the URL."
     except Exception as e:
@@ -43,7 +44,7 @@ def load_data(csv_path):
     """Load data from a CSV file, downloading and extracting if necessary."""
     # Check if the CSV file exists
     if not os.path.exists(csv_path):
-        st.info(f"{csv_path} not found. Downloading and extracting dataset...")
+        st.toast(f"{csv_path} not found. Downloading and extracting dataset...")
         success, message = download_and_extract_data(GITHUB_URL, ZIP_PATH, DATA_FOLDER)
         if not success:
             return None, message
