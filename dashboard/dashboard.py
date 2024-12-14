@@ -40,7 +40,15 @@ def download_and_extract_data(url, zip_path, extract_to):
 
 @st.cache_data(show_spinner=False)
 def load_data(csv_path):
-    """Load data from a CSV file."""
+    """Load data from a CSV file, downloading and extracting if necessary."""
+    # Check if the CSV file exists
+    if not os.path.exists(csv_path):
+        st.info(f"{csv_path} not found. Downloading and extracting dataset...")
+        success, message = download_and_extract_data(GITHUB_URL, ZIP_PATH, DATA_FOLDER)
+        if not success:
+            return None, message
+
+    # Try to load the CSV file
     try:
         return pd.read_csv(csv_path), None
     except Exception as e:
