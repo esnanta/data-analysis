@@ -399,36 +399,62 @@ elif selected == "Clustering":
     if error:
         st.error(error)
     elif df is not None:
-        st.subheader("Clustering Berdasarkan Cuaca")
+        st.subheader("Clustering Based On Weathersit & Holiday")
 
         # Analisis Lanjutan : Clustering Berdasarkan Cuaca
         # Group data by weathersit and calculate mean rentals
-        weathersit_clusters = df.groupby('weathersit').agg({
+        # Group data by weathersit and holiday, and calculate mean rentals
+        weather_holiday_clusters = df.groupby(['weathersit', 'holiday']).agg({
             'casual': 'mean',
             'registered': 'mean'
         }).reset_index()
 
         # Rename columns for better readability
-        weathersit_clusters.columns = ['Weathersit', 'Casual Rentals', 'Registered Rentals']
+        weather_holiday_clusters.columns = ['Weathersit', 'Holiday', 'Casual Rentals', 'Registered Rentals']
+
+        # Define the full range of weathersit categories (modify based on your dataset if needed)
+        weathersit_categories = [1, 2, 3, 4]  # 1: Clear, 2: Mist, 3: Light Snow/Rain, 4: Heavy Rain/Snow
+
+        # Split data into holiday and non-holiday
+        holiday_data = weather_holiday_clusters[weather_holiday_clusters['Holiday'] == 1].set_index('Weathersit')
+        non_holiday_data = weather_holiday_clusters[weather_holiday_clusters['Holiday'] == 0].set_index('Weathersit')
+
+        # Reindex to include all weathersit categories and fill missing values with 0
+        holiday_data = holiday_data.reindex(weathersit_categories, fill_value=0).reset_index()
+        non_holiday_data = non_holiday_data.reindex(weathersit_categories, fill_value=0).reset_index()
 
         # Display clustered data
-        st.dataframe(weathersit_clusters)
+        st.dataframe(weather_holiday_clusters)
 
-        # Visualization: Comparing registered and casual rentals across weathersit
-        fig, ax = plt.subplots(figsize=(10, 6))  # Create figure and axis
+        # Visualization: Compare rentals across weather conditions for holidays and non-holidays
+        fig, ax = plt.subplots(figsize=(12, 7))
 
         bar_width = 0.35
-        index = weathersit_clusters['Weathersit']
+        index = np.arange(len(weathersit_categories))  # Create a consistent index for all weathersit categories
 
-        # Plot the bars
-        ax.bar(index - bar_width / 2, weathersit_clusters['Casual Rentals'], bar_width, label='Casual Rentals', color='skyblue')
-        ax.bar(index + bar_width / 2, weathersit_clusters['Registered Rentals'], bar_width, label='Registered Rentals', color='orange')
+        # Improved color scheme for better visual distinction
+        holiday_casual_color = '#1f77b4'  # Dark Blue
+        non_holiday_casual_color = '#aec7e8'  # Light Blue
+        holiday_registered_color = '#ff7f0e'  # Orange
+        non_holiday_registered_color = '#ffbb78'  # Light Orange
 
-        # Add labels and title
+        # Plot casual rentals data
+        ax.bar(index - bar_width / 2, holiday_data['Casual Rentals'], bar_width, label='Casual Rentals (Holiday)',
+               color=holiday_casual_color)
+        ax.bar(index - bar_width / 2, non_holiday_data['Casual Rentals'], bar_width,
+               label='Casual Rentals (Non-Holiday)', color=non_holiday_casual_color, alpha=0.8)
+
+        # Plot registered rentals data
+        ax.bar(index + bar_width / 2, holiday_data['Registered Rentals'], bar_width,
+               label='Registered Rentals (Holiday)', color=holiday_registered_color)
+        ax.bar(index + bar_width / 2, non_holiday_data['Registered Rentals'], bar_width,
+               label='Registered Rentals (Non-Holiday)', color=non_holiday_registered_color, alpha=0.8)
+
+        # Add labels, title, and legend
         ax.set_xlabel('Weathersit')
         ax.set_ylabel('Average Rentals (Casual vs Registered)')
-        ax.set_title('Casual vs Registered Rentals by Weathersit')
-        ax.set_xticks(weathersit_clusters['Weathersit'])
+        ax.set_title('Casual vs Registered Rentals by Weathersit and Holiday')
+        ax.set_xticks(index)
         ax.set_xticklabels(['Clear', 'Mist', 'Light Snow/Rain', 'Heavy Rain/Snow'])
         ax.legend()
 
@@ -437,9 +463,11 @@ elif selected == "Clustering":
 
         st.markdown("""
             **Insight:**
-            * Cuaca cerah (Clear) cenderung memiliki rata-rata penyewaan tertinggi, baik untuk casual maupun registered.
-            * Kondisi cuaca buruk (Heavy Rain/Snow) memiliki rata-rata penyewaan terendah, menunjukkan pengaruh negatif dari cuaca buruk.
-            * Pelanggan umum (casual) lebih sensitif terhadap perubahan cuaca dibandingkan registered rentals.
+            * Dalam keadaan cuaca apapun, pelanggan terdaftar memiliki jumlah penyewaan terbanyak baik untuk hari libur ataupun kerja.
+            * Pelanggan umum lebih banyak menyewa sepeda saat hari libur, sedangkan pelanggan terdaftar lebih banyak saat hari kerja.
+            * Cuaca cerah (clear) cenderung memiliki rata-rata penyewaan tertinggi, baik untuk pelanggan umum (casual) maupun pelanggan terdaftar (registered).
+            * Kondisi cuaca buruk (heavy rain/snow) memiliki rata-rata penyewaan terendah, menunjukkan pengaruh negatif dari cuaca buruk.
+            * Saat cuaca buruk, penyewaan pelanggan umum maupun terdaftar jumlahnya minimal, terlepas apakah hari kerja ataupun libur.
         """)
 
 # Conclusion Section
@@ -488,10 +516,15 @@ elif selected == "Conclusion":
 
     # Conclusion for Advanced Analysis: Clustering Based on Weather
     st.subheader("🎯 Kesimpulan Analisis Lanjutan")
-    st.markdown("""***Clustering Berdasarkan Cuaca***""")
+    st.markdown("""***Clustering Berdasarkan Cuaca & Libur***""")
     st.markdown("""
-    - **Kondisi cuaca buruk** (Light Snow/Rain dan Heavy Rain/Snow) memiliki rata-rata penyewaan terendah, menunjukkan pengaruh negatif dari cuaca buruk.
-    - **Pelanggan umum (casual)** lebih sensitif terhadap perubahan cuaca dibandingkan dengan **pelanggan terdaftar (registered)**.
+    - Liburan berpengaruh lebih banyak pada pelanggan umum, terutama dalam kondisi cuaca yang lebih baik (cerah atau berkabut). Hal ini terjadi karena kegiatan rekreasi lebih sering dilakukan pada hari libur dengan cuaca yang mendukung.
+    - Pelanggan terdaftar memiliki jumlah penggunaan yang tinggi selama hari kerja. Hal ini dipengaruhi oleh kebutuhan perjalanan rutin.
+    - Cuaca cerah menunjukkan angka penyewaan tertinggi di semua kategori. Artinya, cuaca berdampak baik dan signifikan terhadap penggunaan sepeda.
+    - Cuaca buruk (salju/hujan ringan atau lebat) menyebabkan penurunan drastis penggunaan sepeda, terlepas apakah itu hari libur atau tidak.
+    - Promosi atau diskon bisa dibuat untuk pengguna umum (casual) pada hari libur, terutama saat cuaca cerah, agar dapat lebih meningkatkan penggunaan/penyewaan sepeda.
+    - Perlu penyediaan perlengkapan atau fasilitas tahan cuaca untuk membantu menjaga jumlah pelanggan saat cuaca berkabut atau sedikit hujan.
+    
     """)
 
 else:

@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="87138a86-d843-4503-9cfb-08d648810534" name="Changes" comment="" />
+    <list default="true" id="87138a86-d843-4503-9cfb-08d648810534" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../bike_sharing_data_analysis.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/../bike_sharing_data_analysis.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dashboard.py" beforeDir="false" afterPath="$PROJECT_DIR$/dashboard.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../requirements.txt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -49,7 +54,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1734145320475</updated>
-      <workItem from="1734145321543" duration="1347000" />
+      <workItem from="1734145321543" duration="5383000" />
     </task>
     <servers />
   </component>
