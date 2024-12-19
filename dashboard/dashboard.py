@@ -32,8 +32,7 @@ def download_and_extract_data(url, zip_path, extract_to):
                 file.write(response.content)
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                 zip_ref.extractall(extract_to)
-            st.toast("Dataset downloaded and extracted successfully!")
-            return True, None
+            return True, None  # Return success without using Streamlit elements
         else:
             return False, "Failed to download the dataset. Check the URL."
     except Exception as e:
@@ -42,26 +41,18 @@ def download_and_extract_data(url, zip_path, extract_to):
 @st.cache_data(show_spinner=False)
 def load_data(csv_path):
     """Load data from a CSV file, downloading and extracting if necessary."""
-    # Check if the CSV file exists
     if not os.path.exists(csv_path):
-        st.toast(f"{csv_path} not found. Downloading and extracting dataset...")
+        # Check file existence without Streamlit elements
         success, message = download_and_extract_data(GITHUB_URL, ZIP_PATH, DATA_FOLDER)
         if not success:
             return None, message
 
-    # Try to load the CSV file
     try:
         return pd.read_csv(csv_path), None
     except Exception as e:
         return None, f"An error occurred while loading data: {e}"
 
-# Reset cache functionality
-def reset_cache():
-    """Clear all cached data."""
-    st.cache_data.clear()
-    st.success("Cache has been cleared!")
-
-# Analysis based on selected option
+# Outside the cached functions, use Streamlit elements for UI updates
 df, error = load_data(HOUR_CSV_PATH)
 
 
